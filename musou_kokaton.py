@@ -93,10 +93,7 @@ class Bird(pg.sprite.Sprite):
             if key_lst[k]:
                 sum_mv[0] += mv[0]
                 sum_mv[1] += mv[1]
-        if pg.K_LSHIFT:
-            self.rect.move_ip(self.speed*2*sum_mv[0], self.speed*2*sum_mv[1])
-        else:
-            self.rect.move_ip(self.speed*sum_mv[0], self.speed*sum_mv[1])
+        self.rect.move_ip(self.speed*sum_mv[0], self.speed*sum_mv[1])
         if check_bound(self.rect) != (True, True):
             self.rect.move_ip(-self.speed*sum_mv[0], -self.speed*sum_mv[1])
         if not (sum_mv[0] == 0 and sum_mv[1] == 0):

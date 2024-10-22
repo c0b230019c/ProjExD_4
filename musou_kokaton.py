@@ -67,15 +67,14 @@ class Bird(pg.sprite.Sprite):
             (0, +1): pg.transform.rotozoom(img, -90, 1.0),  # 下
             (+1, +1): pg.transform.rotozoom(img, -45, 1.0),  # 右下
         }
+        speed = 10
         self.dire = (+1, 0)
         self.image = self.imgs[self.dire]
         self.rect = self.image.get_rect()
         self.rect.center = xy
-        self.speed = 10
-        self.state = "normal"  # new↓
-        self.hyper_life = 0
-
-
+        self.speed = speed
+        self.state = "normal" # 初期状態 無敵時"hyper"
+        self.hyper_life = 0 # 初期状態 フレームレートで参照
 
     def change_img(self, num: int, screen: pg.Surface):
         """
@@ -92,6 +91,10 @@ class Bird(pg.sprite.Sprite):
         引数1 key_lst：押下キーの真理値リスト
         引数2 screen：画面Surface
         """
+        if key_lst[pg.K_LSHIFT]:
+            self.speed = 20
+        else:
+            self.speed = 10
         sum_mv = [0, 0]
         for k, mv in __class__.delta.items():
             if key_lst[k]:
@@ -331,7 +334,7 @@ def main():
             if event.type == pg.KEYDOWN and event.key ==pg.K_RETURN and score.value>=0:
                 score.value-=200
                 gras.add(Gravity(400))
-            if event.type == pg.KEYDOWN and event.key ==pg.K_e and score.value>=0:
+            if event.type == pg.KEYDOWN and event.key ==pg.K_e and score.value>=20:
                 score.value-=20    
                 emp.add(EMP(emys,bombs,screen))
         screen.blit(bg_img,[0,0])
@@ -400,3 +403,9 @@ def main():
         pg.display.update()
         tmr += 1
         clock.tick(50)
+
+if __name__ == "__main__":
+    pg.init()
+    main()
+    pg.quit()
+    sys.exit()

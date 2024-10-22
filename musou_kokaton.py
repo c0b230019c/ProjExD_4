@@ -244,7 +244,7 @@ class Score:
 
 class Gravity(pg.sprite.Sprite):
     """
-    重力波を発せさせる
+    重力波を２００秒発生させる
     """
     def __init__(self,life):
         super().__init__()
@@ -332,11 +332,7 @@ def main():
         exps.draw(screen)
         gras.update()
         gras.draw(screen)
-        # life.update(bombs, emys, exps, score)
-        # life.update()
-        # life.draw(screen)
         score.update(screen)
-
         pg.display.update()
         tmr += 1
         clock.tick(50)

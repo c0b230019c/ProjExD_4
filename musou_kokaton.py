@@ -126,6 +126,7 @@ class Bomb(pg.sprite.Sprite):
         self.rect.centerx = emy.rect.centerx
         self.rect.centery = emy.rect.centery+emy.rect.height//2
         self.speed = 6
+        self.state="active"
 
     def update(self):
         """
@@ -244,7 +245,7 @@ class Score:
 
 class Gravity(pg.sprite.Sprite):
     """
-    重力波を２００秒発生させる
+    重力波をlifeフレーム発せさせる
     """
     def __init__(self,life):
         super().__init__()
@@ -258,7 +259,34 @@ class Gravity(pg.sprite.Sprite):
         self.life-=1
         if self.life<0:
             self.kill()
+
+class EMP(pg.sprite.Sprite):
+    """
+    電磁パルスを発せさせる
+    """
+    def __init__(self,emys,bombs,serface):
+        super().__init__()
+        self.emys=emys
+        self.bombs=bombs
+        self.serface=serface
+        self.image= pg.Surface((WIDTH,HEIGHT),pg.SRCALPHA)
+        self.rect =self.image.get_rect()
+        pg.draw.rect(self.image,(255,255,0,128),self.rect)
+        self.time =10
+        for emy in self.emys:
+            emy.interval=float("inf")
+            emy.image = pg.transform.laplacian(emy.image)
+        for bomb in self.bombs:
+            print(bomb.__dict__)
+            bomb.speed /= 2
+            bomb.state="inactive"
         
+    def update(self):
+        self.time -=0.5
+        if self.time <=0:
+            self.kill()
+        
+            
 
 def main():
     pg.display.set_caption("真！こうかとん無双")
@@ -272,6 +300,7 @@ def main():
     exps = pg.sprite.Group()
     emys = pg.sprite.Group()
     gras = pg.sprite.Group()
+    emp =pg.sprite.Group()
 
     tmr = 0
     clock = pg.time.Clock()
@@ -285,8 +314,10 @@ def main():
             if event.type == pg.KEYDOWN and event.key ==pg.K_RETURN and score.value>=200:
                 score.value-=200
                 gras.add(Gravity(400))
+            if event.type == pg.KEYDOWN and event.key ==pg.K_e and score.value>=20:
+                score.value-=20    
+                emp.add(EMP(emys,bombs,screen))
         screen.blit(bg_img,[0,0])
-
         if tmr%200 == 0:  # 200フレームに1回，敵機を出現させる
             emys.add(Enemy())
 
@@ -301,8 +332,9 @@ def main():
             bird.change_img(6, screen)  # こうかとん喜びエフェクト
 
         for bomb in pg.sprite.groupcollide(bombs, beams, True, True).keys():
-            exps.add(Explosion(bomb, 50))  # 爆発エフェクト
-            score.value += 1  # 1点アップ
+            if bomb.state=="active":
+                exps.add(Explosion(bomb, 50))  # 爆発エフェクト
+                score.value += 1  # 1点アップ
 
        # 爆弾と重力場の衝突判定
         for bomb in pg.sprite.groupcollide(bombs,gras, True,False):
@@ -332,6 +364,8 @@ def main():
         exps.draw(screen)
         gras.update()
         gras.draw(screen)
+        emp.draw(screen)
+        emp.update()
         score.update(screen)
         pg.display.update()
         tmr += 1

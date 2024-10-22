@@ -243,22 +243,6 @@ class Score:
         screen.blit(self.image, self.rect)
 
 
-class Gravity(pg.sprite.Sprite):
-    """
-    重力波をlifeフレーム発せさせる
-    """
-    def __init__(self,life):
-        super().__init__()
-        self.life=life
-        self.image= pg.Surface((WIDTH,HEIGHT),pg.SRCALPHA)
-        self.rect =self.image.get_rect()
-        pg.draw.rect(self.image,(0,0,0,128),self.rect)
-        
-    
-    def update(self):
-        self.life-=1
-        if self.life<0:
-            self.kill()
 
 class EMP(pg.sprite.Sprite):
     """
@@ -299,7 +283,6 @@ def main():
     beams = pg.sprite.Group()
     exps = pg.sprite.Group()
     emys = pg.sprite.Group()
-    gras = pg.sprite.Group()
     emp =pg.sprite.Group()
 
     tmr = 0
@@ -311,9 +294,6 @@ def main():
                 return 0
             if event.type == pg.KEYDOWN and event.key == pg.K_SPACE:
                 beams.add(Beam(bird))
-            if event.type == pg.KEYDOWN and event.key ==pg.K_RETURN and score.value>=200:
-                score.value-=200
-                gras.add(Gravity(400))
             if event.type == pg.KEYDOWN and event.key ==pg.K_e and score.value>=20:
                 score.value-=20    
                 emp.add(EMP(emys,bombs,screen))
@@ -336,15 +316,6 @@ def main():
                 exps.add(Explosion(bomb, 50))  # 爆発エフェクト
                 score.value += 1  # 1点アップ
 
-       # 爆弾と重力場の衝突判定
-        for bomb in pg.sprite.groupcollide(bombs,gras, True,False):
-            exps.add(Explosion(bomb, 50))  # 爆発エフェクト
-            score.value += 1  # スコアアップ
-        # 敵機と重力場の衝突判定
-        for emy in pg.sprite.groupcollide(emys,gras, True, False):
-            exps.add(Explosion(emy, 100))  # 爆発エフェクト
-            score.value += 10  # スコアアップ
-
         if len(pg.sprite.spritecollide(bird, bombs, True)) != 0:
             bird.change_img(8, screen) # こうかとん悲しみエフェクト
             score.update(screen)
@@ -362,8 +333,6 @@ def main():
         bombs.draw(screen)
         exps.update()
         exps.draw(screen)
-        gras.update()
-        gras.draw(screen)
         emp.draw(screen)
         emp.update()
         score.update(screen)
